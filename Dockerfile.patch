@@ -1,0 +1,5 @@
+FROM cvg-slr-wizard:latest
+USER root
+COPY slr_wizard/ /app/slr_wizard/
+RUN pip install --no-cache-dir -e /app --no-deps --quiet
+USER slrwiz
