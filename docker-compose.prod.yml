@@ -1,0 +1,102 @@
+# CVG SLR Wizard — Production Stack
+# Deploys on CVG infrastructure: slr.cleargeo.tech
+# Run: docker compose -f docker-compose.prod.yml up -d
+# Caddy handles TLS via Let's Encrypt (HTTP-01 challenge)
+
+x-restart: &restart
+  restart: unless-stopped
+
+x-labels-slrw: &labels-slrw
+  com.cvg.service: slr-wizard
+  com.cvg.domain: cleargeo.tech
+  com.cvg.tier: application
+
+services:
+
+  # ── SLR Wizard (FastAPI) ────────────────────────────────────────────────────
+  slr-wizard:
+    <<: *restart
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cvg/slr-wizard:latest
+    container_name: slrw-api
+    expose:
+      - "8010"
+    volumes:
+      - slrw-data:/app/data
+      - /mnt/cgps:/mnt/cgps:ro          # TrueNAS CGPS share (read-only)
+      - /mnt/cgdp:/mnt/cgdp:ro          # TrueNAS CGDP share (read-only)
+    environment:
+      - SLRW_ENV=production
+      - SLRW_HOST=0.0.0.0
+      - SLRW_PORT=8010
+      - SLRW_RELOAD=false
+      - SLRW_LOG_LEVEL=info
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8010/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      <<: *labels-slrw
+    networks:
+      - web
+      - internal
+
+  # ── Caddy (Reverse Proxy + TLS) ─────────────────────────────────────────────
+  caddy:
+    <<: *restart
+    image: caddy:2-alpine
+    container_name: caddy-slrw
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"   # HTTP/3
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - slr-wizard
+    labels:
+      com.cvg.service: caddy
+    networks:
+      - web
+
+  # ── Watchtower (Auto-update containers) ─────────────────────────────────────
+  watchtower:
+    <<: *restart
+    image: containrrr/watchtower:latest
+    container_name: watchtower-slrw
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=86400   # Check daily
+      - WATCHTOWER_INCLUDE_STOPPED=false
+      - WATCHTOWER_LABEL_ENABLE=false
+      - TZ=America/New_York
+      - DOCKER_API_VERSION=1.41           # Fix: watchtower 1.25 client too old for Docker CE 29
+    labels:
+      com.cvg.service: watchtower
+    networks:
+      - internal
+
+networks:
+  web:
+    name: cvg-web
+    driver: bridge
+  internal:
+    name: cvg-internal
+    driver: bridge
+    internal: true
+
+volumes:
+  slrw-data:
+    name: slrw-data
+  caddy-data:
+    name: caddy-data-slrw
+  caddy-config:
+    name: caddy-config-slrw

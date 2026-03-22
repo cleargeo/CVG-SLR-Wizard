@@ -1,0 +1,19 @@
+[flake8]
+# =============================================================================
+# CVG SLR Wizard — flake8 configuration
+# =============================================================================
+max-line-length = 100
+extend-ignore = E203, W503, E501
+exclude =
+    __pycache__,
+    .git,
+    .venv,
+    build,
+    dist,
+    *.egg-info,
+    slr_wizard/cache,
+    slr_wizard/demo_data,
+per-file-ignores =
+    # Allow unused imports in __init__ re-exports
+    slr_wizard/__init__.py: F401
+    tests/*: F401, F811

@@ -1,0 +1,30 @@
+# =============================================================================
+# (c) Clearview Geographic LLC -- All Rights Reserved | Est. 2018
+# CVG SLR Wizard — Docker Compose (development)
+# =============================================================================
+version: "3.9"
+
+services:
+  slr-wizard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cvg-slr-wizard:dev
+    container_name: slr-wizard-dev
+    ports:
+      - "8010:8010"
+    volumes:
+      - .:/app
+      - slr_output:/app/output
+    environment:
+      - SLR_OUTPUT_DIR=/app/output
+      - PYTHONPATH=/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8010/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  slr_output:

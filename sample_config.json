@@ -1,0 +1,15 @@
+{
+  "_comment": "CVG SLR Wizard — Sample configuration for run_slr_analysis()",
+  "station_id": "8724580",
+  "scenario": "intermediate",
+  "target_year": 2070,
+  "baseline_water_levels_ft": {
+    "10yr":  5.2,
+    "100yr": 8.5,
+    "500yr": 10.2
+  },
+  "baseline_unit": "ft",
+  "output_unit": "ft",
+  "project_name": "monroe_county_slr_2070",
+  "notes": "Key West FL tide gauge, NOAA TR-083 Intermediate scenario, planning horizon 2070"
+}

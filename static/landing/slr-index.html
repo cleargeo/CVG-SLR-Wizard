@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CVG Sea Level Rise Wizard | Coastal Inundation Projections | Clearview Geographic</title>
+<meta name="description" content="Project future coastal inundation under 5 NOAA SLR scenarios across 4 horizon years. NAVD88-referenced GeoTIFF outputs for any U.S. coastal jurisdiction. Built for planners, engineers, and emergency managers.">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f172a;--navy2:#1e293b;
+  --teal:#14b8a6;--teal2:#0d9488;
+  --sky:#38bdf8;--green:#22c55e;
+  --text:#e2e8f0;--muted:#94a3b8;--border:#334155;--card:#1e293b
+}
+html{scroll-behavior:smooth}
+body{background:var(--navy);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.6;min-height:100vh;overflow-x:hidden}
+a{color:var(--teal);text-decoration:none}
+a:hover{color:var(--teal2);text-decoration:underline}
+
+nav{background:rgba(15,23,42,.97);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{font-weight:700;font-size:1.05rem;display:flex;align-items:center;gap:.6rem;color:#f0f9ff}
+.nav-links{display:flex;gap:1.25rem;font-size:.85rem;align-items:center}
+.nav-links a{color:var(--muted)}
+.nav-links a:hover{color:var(--teal);text-decoration:none}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);display:inline-block;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.hero{background:linear-gradient(160deg,#0a1e1e 0%,#0d2a25 50%,#0a1a18 100%);padding:5rem 1.5rem 4rem;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% -10%,rgba(20,184,166,.22) 0%,transparent 65%);pointer-events:none}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(20,184,166,.1);border:1px solid rgba(20,184,166,.3);padding:.3rem 1rem;border-radius:9999px;font-size:.78rem;color:var(--teal);margin-bottom:1.5rem;letter-spacing:.05em}
+.hero h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:800;line-height:1.12;background:linear-gradient(90deg,#f0f9ff 30%,#14b8a6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:1.25rem}
+.hero .sub{font-size:1.1rem;color:var(--muted);max-width:660px;margin:0 auto 2.5rem;line-height:1.65}
+.hero-emoji{font-size:4.5rem;margin-bottom:1rem;filter:drop-shadow(0 0 24px rgba(20,184,166,.55))}
+.btn-row{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1.5rem;border-radius:.5rem;font-weight:600;font-size:.9rem;transition:all .18s;text-decoration:none}
+.btn-primary{background:var(--teal);color:#0f172a}
+.btn-primary:hover{background:var(--teal2);text-decoration:none;transform:translateY(-2px);box-shadow:0 6px 20px rgba(20,184,166,.3)}
+.btn-outline{background:transparent;color:var(--teal);border:1px solid var(--teal)}
+.btn-outline:hover{background:rgba(20,184,166,.1);text-decoration:none}
+.btn-cta{background:var(--green);color:#052e16}
+.btn-cta:hover{background:#16a34a;text-decoration:none;transform:translateY(-2px)}
+
+.statbar{background:var(--navy2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:1.25rem 1.5rem;display:flex;gap:2rem;justify-content:center;flex-wrap:wrap}
+.stat{text-align:center}
+.stat-val{font-size:1.4rem;font-weight:800;font-family:Consolas,monospace;color:var(--teal)}
+.stat-lbl{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:.15rem}
+
+.C{max-width:1100px;margin:0 auto;padding:0 1.5rem}
+section{padding:4rem 0}
+.sec-h{font-size:1.65rem;font-weight:700;margin-bottom:.4rem}
+.sec-s{color:var(--muted);margin-bottom:2.5rem;font-size:.95rem;line-height:1.6}
+
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.25rem}
+.feat-card{background:var(--card);border:1px solid var(--border);border-radius:.875rem;padding:1.5rem;transition:border-color .2s,transform .2s}
+.feat-card:hover{border-color:var(--teal);transform:translateY(-3px)}
+.feat-icon{font-size:2rem;margin-bottom:.75rem}
+.feat-title{font-size:1rem;font-weight:700;margin-bottom:.4rem;color:#f0f9ff}
+.feat-desc{font-size:.85rem;color:var(--muted);line-height:1.6}
+
+.outputs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.output-item{background:var(--card);border:1px solid var(--border);border-radius:.75rem;padding:1.25rem;text-align:center}
+.output-icon{font-size:2.2rem;margin-bottom:.5rem}
+.output-name{font-weight:700;font-size:.95rem;color:#f0f9ff;margin-bottom:.25rem}
+.output-desc{font-size:.78rem;color:var(--muted)}
+
+/* ── SLR Scenarios ── */
+.slr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:1rem}
+.slr-card{border:1px solid var(--border);border-radius:.75rem;padding:1.25rem;background:var(--card);text-align:center}
+.slr-name{font-family:Consolas,monospace;font-weight:800;font-size:1rem;margin-bottom:.3rem}
+.slr-rise{font-size:1.4rem;font-weight:800;font-family:Consolas,monospace;color:var(--teal);margin-bottom:.25rem}
+.slr-desc{font-size:.75rem;color:var(--muted);line-height:1.5}
+.s-low{border-left:3px solid #22c55e}
+.s-intlow{border-left:3px solid #84cc16}
+.s-int{border-left:3px solid var(--teal)}
+.s-inthigh{border-left:3px solid #f97316}
+.s-high{border-left:3px solid #ef4444}
+
+/* ── Horizon years ── */
+.horizon-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-top:1.5rem}
+.hz-card{background:var(--navy2);border:1px solid var(--border);border-radius:.75rem;padding:1rem;text-align:center}
+.hz-year{font-size:1.6rem;font-weight:800;color:var(--teal);font-family:Consolas,monospace}
+.hz-context{font-size:.75rem;color:var(--muted);margin-top:.25rem}
+
+/* ── Who section ── */
+.who-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.25rem}
+.who-card{background:var(--card);border-left:3px solid var(--teal);border-radius:.5rem;padding:1.25rem}
+.who-title{font-weight:700;font-size:.95rem;color:#f0f9ff;margin-bottom:.5rem}
+.who-desc{font-size:.83rem;color:var(--muted);line-height:1.6}
+
+/* ── Spec ── */
+.spec-box{background:var(--card);border:1px solid var(--border);border-radius:.875rem;padding:1.5rem}
+.spec-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.spec-table tr{border-bottom:1px solid rgba(51,65,85,.5)}
+.spec-table tr:last-child{border:none}
+.spec-table td{padding:.45rem 0}
+.spec-table td:first-child{color:var(--muted);width:50%;padding-right:1rem}
+.spec-table td:last-child{font-family:Consolas,monospace;color:#f0f9ff}
+
+/* ── Workflow steps ── */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1.5rem;margin-top:1.5rem}
+.step{text-align:center;padding:1.5rem}
+.step-num{width:3rem;height:3rem;background:linear-gradient(135deg,var(--teal),var(--teal2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;margin:0 auto .75rem;color:#0f172a}
+.step-title{font-size:1rem;font-weight:700;margin-bottom:.4rem}
+.step-desc{font-size:.85rem;color:var(--muted);line-height:1.6}
+
+/* ── API ── */
+.api-box{background:var(--card);border:1px solid var(--border);border-radius:.875rem;padding:1.5rem}
+.api-table{width:100%;border-collapse:collapse;font-size:.84rem}
+.api-table th{text-align:left;padding:.4rem .75rem;color:var(--muted);border-bottom:1px solid var(--border);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}
+.api-table td{padding:.45rem .75rem;border-bottom:1px solid rgba(51,65,85,.4)}
+.api-table tr:last-child td{border:none}
+.method{display:inline-block;padding:.15rem .5rem;border-radius:.25rem;font-weight:700;font-size:.7rem;font-family:monospace}
+.m-get{background:rgba(20,184,166,.15);color:#14b8a6}
+.m-post{background:rgba(56,189,248,.15);color:#38bdf8}
+.ep{color:var(--teal);font-family:Consolas,monospace}
+.ed{color:var(--muted);font-family:sans-serif;font-size:.82rem}
+.health-bar{display:flex;align-items:center;gap:.6rem;font-size:.85rem;font-family:Consolas,monospace;background:rgba(20,184,166,.05);border:1px solid rgba(20,184,166,.2);padding:.6rem 1rem;border-radius:.5rem;margin-top:1rem;width:fit-content}
+
+/* ── CTA ── */
+.cta-band{background:linear-gradient(135deg,#0a1e1e,#0d2a22);border:1px solid rgba(20,184,166,.25);border-radius:1rem;padding:3rem 2rem;text-align:center;margin:2rem 0}
+.cta-band h2{font-size:1.75rem;font-weight:800;color:#f0f9ff;margin-bottom:.75rem}
+.cta-band p{color:var(--muted);max-width:580px;margin:0 auto 2rem;line-height:1.6}
+
+/* ── Suite ── */
+.suite-bar{background:rgba(15,23,42,.6);border:1px solid var(--border);border-radius:.75rem;padding:1.25rem;text-align:center;margin-top:2rem}
+.suite-bar p{font-size:.85rem;color:var(--muted);margin-bottom:.75rem}
+.suite-bar a{display:inline-block;margin:.25rem .5rem;padding:.35rem .9rem;background:rgba(20,184,166,.1);border:1px solid rgba(20,184,166,.25);border-radius:9999px;font-size:.8rem;color:var(--teal);text-decoration:none}
+.suite-bar a:hover{background:rgba(20,184,166,.2);text-decoration:none}
+
+/* ── Trust strip + Price band ── */
+.trust-strip{background:#091e1e;border-bottom:1px solid var(--border);padding:.875rem 1.5rem;display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;align-items:center}
+.trust-item{display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--muted)}
+.trust-item strong{color:#f0f9ff}
+.price-band{background:linear-gradient(135deg,rgba(34,197,94,.08),rgba(34,197,94,.04));border:1px solid rgba(34,197,94,.2);border-radius:.875rem;padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-top:2rem}
+.price-left h3{font-size:1.25rem;font-weight:800;color:#f0f9ff;margin-bottom:.25rem}
+.price-left p{font-size:.85rem;color:var(--muted);max-width:460px;line-height:1.5}
+.price-range{font-size:1.75rem;font-weight:800;color:var(--green);font-family:Consolas,monospace}
+.price-note{font-size:.75rem;color:var(--muted);text-align:right}
+
+footer{background:var(--card);border-top:1px solid var(--border);padding:2rem 1.5rem;text-align:center;font-size:.8rem;color:var(--muted)}
+.footer-brand{font-weight:700;color:#e2e8f0;margin-bottom:.4rem;font-size:.95rem}
+
+@media(max-width:768px){
+  .nav-links{display:none}
+  .statbar{gap:1rem}
+  .hero h1{font-size:2rem}
+  .cta-band{padding:2rem 1rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand"><span>🌍</span> CVG Sea Level Rise Wizard</div>
+  <div class="nav-links">
+    <a href="/docs">API Docs</a>
+    <a href="/health">Health</a>
+    <a href="/api/wizards/status">Status</a>
+    <span class="live-dot"></span>
+    <span style="font-size:.8rem;color:var(--green)" id="hb">LIVE</span>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="hero-emoji">🌍</div>
+  <div class="hero-eyebrow">NOAA Sweet et al. 2022 · NAVD88 Referenced · 5 Scenarios · GeoTIFF Output</div>
+  <h1>Sea Level Rise Inundation Projections<br>for Any Coastal Jurisdiction</h1>
+  <p class="sub">
+    Map future coastal flooding under five NOAA SLR scenarios across four planning horizons.
+    Delivers NAVD88-referenced inundation rasters as cloud-optimized GeoTIFFs —
+    built for planners, engineers, and emergency managers who need defensible future flood maps now.
+  </p>
+  <div class="btn-row">
+    <a href="https://www.clearviewgeographic.com/contact" class="btn btn-cta" target="_blank">📋 Request a Demo</a>
+    <a href="/docs" class="btn btn-primary">📄 API Documentation</a>
+    <a href="/api/run" class="btn btn-outline">▶ Run Analysis</a>
+  </div>
+</section>
+
+<!-- ── Stats ── -->
+<div class="statbar">
+  <div class="stat"><div class="stat-val">5</div><div class="stat-lbl">NOAA SLR Scenarios</div></div>
+  <div class="stat"><div class="stat-val">4</div><div class="stat-lbl">Horizon Years</div></div>
+  <div class="stat"><div class="stat-val">NAVD88</div><div class="stat-lbl">Vertical Datum</div></div>
+  <div class="stat"><div class="stat-val">COG</div><div class="stat-lbl">GeoTIFF Output</div></div>
+  <div class="stat"><div class="stat-val">2100</div><div class="stat-lbl">Planning Horizon</div></div>
+  <div class="stat"><div class="stat-val">CONUS</div><div class="stat-lbl">Coverage</div></div>
+</div>
+
+<!-- ── Trust / Social Proof Strip ── -->
+<div class="trust-strip">
+  <div class="trust-item">✅ <strong>Alex Zelenski, GISP</strong> — GISP Certified Lead</div>
+  <div class="trust-item">📊 <strong>49+</strong> Flood Assessments Delivered</div>
+  <div class="trust-item">⭐ <strong>4.9 / 5</strong> — 156+ Clients</div>
+  <div class="trust-item">💰 <strong>$2.5M+</strong> Revenue Proven</div>
+  <div class="trust-item">⚡ Quote in <strong>4 Hours</strong> &bull; <a href="tel:+13869572314" style="color:#14b8a6">(386) 957-2314</a></div>
+</div>
+
+<div class="C">
+
+  <!-- ── What It Does ── -->
+  <section>
+    <h2 class="sec-h">🎯 What the SLR Wizard Delivers</h2>
+    <p class="sec-s">
+      Physics-based sea level rise projections grounded in NOAA's interagency technical report.
+      Submit an AOI and receive inundation depth rasters for all five sea level scenarios
+      and your choice of planning horizon — ready for GIS, FEMA submittals, and resiliency plans.
+    </p>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-icon">📈</div>
+        <div class="feat-title">NOAA SLR Scenario Engine</div>
+        <div class="feat-desc">Sweet et al. (2022) NOAA Technical Report: Low, Intermediate-Low, Intermediate, Intermediate-High, and High scenarios. Anchored to NOAA tide gauge stations for localized MSL offset.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🗺️</div>
+        <div class="feat-title">Inundation Depth Rasters</div>
+        <div class="feat-desc">DEM-subtraction inundation grids at configurable resolution. Float32 depth values in meters, NAVD88 vertical datum, NoData-masked for dry areas. Direct GIS import.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📅</div>
+        <div class="feat-title">Multi-Horizon Analysis</div>
+        <div class="feat-desc">Project inundation to 2030, 2050, 2075, or 2100. Compare infrastructure lifecycles and adapt capital improvement priorities to future flood exposure across all four horizons simultaneously.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🌐</div>
+        <div class="feat-title">NOAA Tide Gauge Integration</div>
+        <div class="feat-desc">Live and historical water level data from NOAA CO-OPS stations. Localized sea level rise anchored to the nearest tide gauge for jurisdictionally accurate results.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">⚡</div>
+        <div class="feat-title">REST API — Job Queue</div>
+        <div class="feat-desc">Async job submission with status polling, output download links, and webhook notifications. Integrate directly into GIS pipelines, dashboards, or report workflows.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🔗</div>
+        <div class="feat-title">Compound Flood Pairing</div>
+        <div class="feat-desc">SLR baseline projections combine with Storm Surge Wizard output for compound flood analysis — the gold standard for FEMA resilience grants and HMGP applications.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Outputs ── -->
+  <section>
+    <h2 class="sec-h">📦 Deliverable Outputs</h2>
+    <p class="sec-s">Every analysis run returns structured, analysis-ready deliverables — not just pixel arrays. Built to slot directly into your planning, GIS, or FEMA documentation workflow.</p>
+    <div class="outputs-grid">
+      <div class="output-item">
+        <div class="output-icon">🗂️</div>
+        <div class="output-name">Inundation GeoTIFF</div>
+        <div class="output-desc">Float32 depth raster, NAVD88 vertical, EPSG:4326, COG-tiled for cloud hosting</div>
+      </div>
+      <div class="output-item">
+        <div class="output-icon">📊</div>
+        <div class="output-name">Scenario Comparison Set</div>
+        <div class="output-desc">All 5 SLR scenarios × 4 horizon years in one job — 20 rasters, fully comparable</div>
+      </div>
+      <div class="output-item">
+        <div class="output-icon">📋</div>
+        <div class="output-name">JSON Summary</div>
+        <div class="output-desc">Projected MSL rise, inundated area, depth statistics, extent, CRS, and job metadata</div>
+      </div>
+      <div class="output-item">
+        <div class="output-icon">📡</div>
+        <div class="output-name">Live Station Data</div>
+        <div class="output-desc">Current water levels and SLR baseline from NOAA CO-OPS tide gauge nearest your AOI</div>
+      </div>
+      <div class="output-item">
+        <div class="output-icon">📄</div>
+        <div class="output-name">Planning Report Data</div>
+        <div class="output-desc">Structured JSON suitable for automated report generation — depth tables, scenario matrices</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SLR Scenarios ── -->
+  <section>
+    <h2 class="sec-h">🌊 NOAA SLR Scenarios</h2>
+    <p class="sec-s">Sweet et al. 2022 — NOAA Interagency Technical Report. Global mean sea level rise by 2100 relative to 2000 baseline. Five scenarios spanning the full planning probability range.</p>
+    <div class="slr-grid">
+      <div class="slr-card s-low">
+        <div class="slr-name" style="color:#22c55e">LOW</div>
+        <div class="slr-rise">+0.3 m</div>
+        <div class="slr-desc">By 2100. Low probability, high-confidence minimum. Conservative baseline for long-lived infrastructure.</div>
+      </div>
+      <div class="slr-card s-intlow">
+        <div class="slr-name" style="color:#84cc16">INT-LOW</div>
+        <div class="slr-rise">+0.5 m</div>
+        <div class="slr-desc">By 2100. Moderate mitigation scenario. Lower bound for most state and federal planning standards.</div>
+      </div>
+      <div class="slr-card s-int">
+        <div class="slr-name" style="color:var(--teal)">INTERMEDIATE</div>
+        <div class="slr-rise">+1.0 m</div>
+        <div class="slr-desc">By 2100. NOAA best estimate — the standard for comprehensive planning, resilience, and FEMA compliance.</div>
+      </div>
+      <div class="slr-card s-inthigh">
+        <div class="slr-name" style="color:#f97316">INT-HIGH</div>
+        <div class="slr-rise">+1.5 m</div>
+        <div class="slr-desc">By 2100. Elevated risk scenario. Recommended for critical infrastructure, hospitals, and EOC siting.</div>
+      </div>
+      <div class="slr-card s-high">
+        <div class="slr-name" style="color:#ef4444">HIGH</div>
+        <div class="slr-rise">+2.0 m</div>
+        <div class="slr-desc">By 2100. Low probability, high impact. Worst-case for ports, coastal utilities, and regional adaptation strategy.</div>
+      </div>
+    </div>
+
+    <!-- Horizon years -->
+    <h3 style="font-size:1.1rem;font-weight:700;margin-top:2.5rem;margin-bottom:.4rem">Planning Horizon Years</h3>
+    <p style="color:var(--muted);font-size:.875rem;margin-bottom:1rem">Each SLR scenario can be projected to any or all of these standard infrastructure and planning lifecycle horizons.</p>
+    <div class="horizon-grid">
+      <div class="hz-card"><div class="hz-year">2030</div><div class="hz-context">Near-term capital planning</div></div>
+      <div class="hz-card"><div class="hz-year">2050</div><div class="hz-context">Mid-century resilience baseline</div></div>
+      <div class="hz-card"><div class="hz-year">2075</div><div class="hz-context">Long-horizon infrastructure lifecycle</div></div>
+      <div class="hz-card"><div class="hz-year">2100</div><div class="hz-context">End-of-century planning standard</div></div>
+    </div>
+  </section>
+
+  <!-- ── How It Works ── -->
+  <section>
+    <h2 class="sec-h">⚙️ How It Works</h2>
+    <p class="sec-s">Three steps from project scope to downloadable inundation rasters — typically complete in minutes.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-title">Configure Your Analysis</div>
+        <div class="step-desc">Submit your AOI (GeoJSON, WKT, or bounding box), select SLR scenarios, target horizon years, DEM source, and output resolution via REST API or JSON payload.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-title">Engine Processes</div>
+        <div class="step-desc">The SLR engine retrieves the NOAA curve for your nearest tide gauge, applies the projected MSL offset to local datum, performs DEM differencing, and clips to your AOI.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-title">Download & Deliver</div>
+        <div class="step-desc">Retrieve COG GeoTIFFs with embedded CRS (EPSG:4326), NAVD88 vertical datum, and structured JSON metadata. Import directly into ArcGIS, QGIS, or your web mapping platform.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Who Uses This ── -->
+  <section>
+    <h2 class="sec-h">👥 Who Uses the SLR Wizard</h2>
+    <p class="sec-s">Designed for professionals who need future-state coastal flood maps — not just historical data.</p>
+    <div class="who-grid">
+      <div class="who-card">
+        <div class="who-title">🏛️ Municipal & County Planners</div>
+        <div class="who-desc">Future inundation maps for comprehensive plans, land use rezoning, FEMA CRS credits, and Climate Resilience Plans. Defensible NOAA-sourced inputs for grant documentation.</div>
+      </div>
+      <div class="who-card">
+        <div class="who-title">🏗️ Civil & Coastal Engineers</div>
+        <div class="who-desc">Site-specific SLR projections for infrastructure design, freeboard calculations, and stormwater outfall elevation. Replaces weeks of manual DEM processing.</div>
+      </div>
+      <div class="who-card">
+        <div class="who-title">🌊 Resilience & Adaptation Consultants</div>
+        <div class="who-desc">Scenario-ready inundation maps for vulnerability assessments, nature-based solutions siting, and regional adaptation strategy documents under FEMA, CDBG-DR, and ARPA programs.</div>
+      </div>
+      <div class="who-card">
+        <div class="who-title">🏦 Lenders, Insurers & Risk Analysts</div>
+        <div class="who-desc">Property-level future flood exposure for mortgage risk assessment, insurance underwriting, and portfolio climate risk disclosure aligned with TCFD and SEC climate guidance.</div>
+      </div>
+      <div class="who-card">
+        <div class="who-title">📡 State GIS & Emergency Management</div>
+        <div class="who-desc">Bulk SLR analysis for statewide vulnerability inventories. API-first delivery integrates with ArcGIS Enterprise, state data portals, and public-facing flood risk applications.</div>
+      </div>
+      <div class="who-card">
+        <div class="who-title">🏫 Research & Academic Programs</div>
+        <div class="who-desc">Reproducible NOAA-grounded SLR rasters for coastal hazard research, model intercomparison, and publication-quality vulnerability mapping.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Technical Specs ── -->
+  <section>
+    <h2 class="sec-h">⚙️ Technical Specifications</h2>
+    <p class="sec-s">Built on official NOAA SLR datasets, USGS lidar DEMs, and production geospatial infrastructure.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.25rem">
+      <div class="spec-box">
+        <h3 style="font-size:.8rem;color:var(--teal);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem">Raster Output</h3>
+        <table class="spec-table">
+          <tr><td>Data type</td><td>Float32 (depth in meters)</td></tr>
+          <tr><td>Vertical datum</td><td>NAVD88</td></tr>
+          <tr><td>Output CRS</td><td>EPSG:4326 (configurable)</td></tr>
+          <tr><td>Output format</td><td>Cloud-Optimized GeoTIFF</td></tr>
+          <tr><td>Resolution</td><td>Configurable (1m–100m)</td></tr>
+          <tr><td>NoData</td><td>-9999 (dry / above SLR)</td></tr>
+        </table>
+      </div>
+      <div class="spec-box">
+        <h3 style="font-size:.8rem;color:var(--teal);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem">Data Sources</h3>
+        <table class="spec-table">
+          <tr><td>SLR curves</td><td>NOAA Sweet et al. 2022</td></tr>
+          <tr><td>Tide gauge data</td><td>NOAA CO-OPS API v2</td></tr>
+          <tr><td>Elevation model</td><td>USGS 1m QL1/QL2 lidar</td></tr>
+          <tr><td>Active storms</td><td>NOAA NHC advisory feed</td></tr>
+          <tr><td>AOI input</td><td>GeoJSON / WKT / bbox</td></tr>
+          <tr><td>Coverage</td><td>CONUS coastal + territories</td></tr>
+        </table>
+      </div>
+      <div class="spec-box">
+        <h3 style="font-size:.8rem;color:var(--teal);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem">Platform</h3>
+        <table class="spec-table">
+          <tr><td>API framework</td><td>FastAPI + Python 3.11+</td></tr>
+          <tr><td>Proxy / TLS</td><td>Caddy v2 (auto HTTPS)</td></tr>
+          <tr><td>Container</td><td>Docker (Ubuntu 22.04)</td></tr>
+          <tr><td>Job tracking</td><td>Async queue + status API</td></tr>
+          <tr><td>Version</td><td>v1.1.0</td></tr>
+          <tr><td>Auth</td><td>API key (contact for access)</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── API Reference ── -->
+  <section>
+    <h2 class="sec-h">🔗 API Reference</h2>
+    <p class="sec-s">RESTful endpoints for job submission, output retrieval, and NOAA data access. Full interactive documentation at <a href="/docs">/docs</a>.</p>
+    <div class="api-box">
+      <table class="api-table">
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><span class="method m-post">POST</span></td><td class="ep">/api/run</td><td class="ed">Submit SLR analysis job — AOI, scenarios, and horizon year</td></tr>
+          <tr><td><span class="method m-post">POST</span></td><td class="ep">/api/project</td><td class="ed">Project SLR rise for a given NOAA station and horizon year</td></tr>
+          <tr><td><span class="method m-get">GET</span></td><td class="ep">/api/stations</td><td class="ed">List available NOAA CO-OPS tide gauge stations</td></tr>
+          <tr><td><span class="method m-get">GET</span></td><td class="ep">/api/tides/current/{station_id}</td><td class="ed">Live water level reading for any NOAA tide gauge</td></tr>
+          <tr><td><span class="method m-get">GET</span></td><td class="ep">/api/insights</td><td class="ed">SLR analysis insights, scenario recommendations, and planning guidance</td></tr>
+          <tr><td><span class="method m-get">GET</span></td><td class="ep">/api/storms/active</td><td class="ed">Active NOAA NHC storm feed for compound event integration</td></tr>
+          <tr><td><span class="method m-get">GET</span></td><td class="ep">/api/wizards/status</td><td class="ed">CVG Flood Intelligence Suite — wizard status and capabilities</td></tr>
+          <tr><td><span class="method m-get">GET</span></td><td class="ep">/health</td><td class="ed">Service health check — version, uptime, and system status</td></tr>
+        </tbody>
+      </table>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem">
+        <a href="/docs" class="btn btn-outline" style="font-size:.8rem">📄 Swagger UI</a>
+        <a href="/openapi.json" class="btn btn-outline" style="font-size:.8rem">{} OpenAPI JSON</a>
+        <a href="/health" class="btn btn-outline" style="font-size:.8rem">✓ Health Check</a>
+      </div>
+      <div class="health-bar"><span class="live-dot"></span><span id="ht">Checking service health…</span></div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <div class="cta-band">
+    <h2>🏆 Map Future Flood Risk — Qualify for $2M+ FEMA Grants</h2>
+    <p>
+      SLR inundation rasters from CVG meet FEMA BRIC, Climate Resilience Plan, and HMGP grant documentation requirements.
+      Get a scoping call with Alex Zelenski, GISP — we'll confirm NOAA tide gauge coverage,
+      outline deliverables, and quote your project. <strong style="color:#f0f9ff">Response guaranteed in 4 hours.</strong>
+    </p>
+    <div class="price-band">
+      <div class="price-left">
+        <h3>SLR Analysis Projects</h3>
+        <p>Multi-scenario inundation mapping across 5 NOAA SLR pathways and up to 4 planning horizons (2030–2100). Includes COG GeoTIFF package, scenario matrix, and structured JSON report data.</p>
+      </div>
+      <div>
+        <div class="price-range">$3,500 – $15,000</div>
+        <div class="price-note">Typical project range &bull; Custom quotes available<br>📞 <a href="tel:+13869572314" style="color:#22c55e">(386) 957-2314 x101</a></div>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:1.5rem">
+      <a href="https://www.clearviewgeographic.com/contact" class="btn btn-cta" target="_blank">📋 Get a Free Project Quote</a>
+      <a href="tel:+13869572314" class="btn btn-outline">📞 Call (386) 957-2314</a>
+      <a href="mailto:services@clearviewgeographic.com" class="btn btn-outline">✉️ Email Our Team</a>
+    </div>
+    <p style="margin-top:1.25rem;font-size:.8rem;color:var(--muted)">
+      📍 DeLand, Florida &bull; Government Contract Experience &bull; Enterprise Pricing Available &bull;
+      <a href="mailto:services@clearviewgeographic.com" style="color:var(--teal)">services@clearviewgeographic.com</a>
+    </p>
+  </div>
+
+  <!-- ── Suite ── -->
+  <div class="suite-bar">
+    <p>Part of the <strong>CVG Flood Intelligence Suite</strong> — compound flood analysis across surge, sea level rise, and precipitation</p>
+    <a href="https://storm-surge.cleargeo.tech">🌊 Storm Surge Wizard</a>
+    <a href="https://slr.cleargeo.tech">🌍 SLR Wizard</a>
+    <a href="https://rainfall.cleargeo.tech">🌧️ Rainfall Wizard</a>
+    <a href="https://status.cleargeo.tech">📡 Platform Status</a>
+    <a href="https://www.clearviewgeographic.com" target="_blank">🏢 Clearview Geographic</a>
+  </div>
+
+</div><!-- /.C -->
+
+<footer>
+  <div class="footer-brand">🌍 CVG Sea Level Rise Wizard — slr.cleargeo.tech</div>
+  <div>
+    &copy; 2026 <a href="https://www.clearviewgeographic.com" target="_blank">Clearview Geographic, LLC</a> &bull;
+    GISP Certified &bull; CVG Flood Intelligence Suite &bull; DeLand, Florida
+  </div>
+  <div style="margin-top:.5rem">
+    <a href="https://storm-surge.cleargeo.tech">Storm Surge</a> &bull;
+    <a href="https://rainfall.cleargeo.tech">Rainfall Wizard</a> &bull;
+    <a href="https://cleargeo.tech/products.html" target="_blank">CVG Products</a> &bull;
+    <a href="mailto:services@clearviewgeographic.com">services@clearviewgeographic.com</a> &bull;
+    <a href="https://www.clearviewgeographic.com/contact" target="_blank">Contact</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  fetch('/health').then(function(r){return r.json();}).then(function(j){
+    var t=document.getElementById('ht');
+    if(t) t.textContent='Service '+j.status+' — v'+(j.version||'?')+' — uptime '+(j.uptime||'?');
+    var b=document.getElementById('hb');
+    if(b){b.textContent='LIVE';b.style.color='#22c55e';}
+  }).catch(function(){
+    var t=document.getElementById('ht');
+    if(t) t.textContent='API unreachable — contact support';
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<!-- CVG SLR Wizard - Public Web UI | Clearview Geographic LLC -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CVG Sea Level Rise Projection Wizard</title>
+  <style>
+    :root {
+      --primary:      #005ea2;
+      --primary-dark: #00437a;
+      --accent:       #00a3a6;
+      --accent-dark:  #007d80;
+      --bg:           #f5f7fa;
+      --surface:      #ffffff;
+      --border:       #d0d7de;
+      --text:         #1c2b3a;
+      --text-muted:   #5a6b7b;
+      --warn-bg:      #fff8e1;
+      --warn-text:    #7a5a00;
+      --shadow-sm:    0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+      --shadow-md:    0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
+      --shadow-lg:    0 10px 25px rgba(0,0,0,.10), 0 4px 10px rgba(0,0,0,.06);
+      --radius: 8px;
+      --radius-sm: 4px;
+      --transition: 0.18s ease;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: Segoe UI, system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; min-height: 100vh; }
+    .site-header { background: var(--primary); color: #fff; padding: 0 2rem; display: flex; align-items: center; height: 56px; gap: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.18); position: sticky; top: 0; z-index: 100; }
+    .site-brand { font-size: 1rem; font-weight: 700; letter-spacing: .03em; white-space: nowrap; }
+    .site-brand span { opacity: .55; font-weight: 400; }
+    .site-nav { display: flex; gap: .25rem; margin-left: auto; align-items: center; }
+    .site-nav a { color: rgba(255,255,255,.82); text-decoration: none; font-size: .82rem; font-weight: 500; padding: .3rem .7rem; border-radius: var(--radius-sm); transition: background var(--transition), color var(--transition); }
+    .site-nav a:hover { background: rgba(255,255,255,.12); color: #fff; }
+    .site-nav a.active { background: rgba(255,255,255,.18); color: #fff; }
+    .nav-sep { color: rgba(255,255,255,.3); font-size: .75rem; }
+    .hero { background: linear-gradient(135deg, #005ea2 0%, #003d7a 50%, #004d60 100%); color: #fff; text-align: center; padding: 3.5rem 1.5rem 3rem; }
+    .hero-icon { font-size: 3rem; margin-bottom: .75rem; line-height: 1; }
+    .hero h1 { font-size: clamp(1.5rem, 4vw, 2.25rem); font-weight: 700; margin-bottom: .6rem; letter-spacing: -.01em; }
+    .hero p { font-size: 1.05rem; opacity: .85; max-width: 540px; margin: 0 auto 1.5rem; line-height: 1.5; }
+    .hero-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; }
+    .hero-badge { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25); color: #fff; font-size: .78rem; font-weight: 600; padding: .3rem .8rem; border-radius: 20px; letter-spacing: .02em; }
+    .main-container { max-width: 760px; margin: 0 auto; padding: 2.5rem 1.25rem 3rem; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.75rem; margin-bottom: 1.25rem; box-shadow: var(--shadow-sm); transition: box-shadow var(--transition); }
+    .card:hover { box-shadow: var(--shadow-md); }
+    .card h2 { font-size: 1.08rem; font-weight: 700; color: var(--primary); margin-bottom: .5rem; border-bottom: 2px solid var(--accent); padding-bottom: .45rem; }
+    .card-hint { font-size: .85rem; color: var(--text-muted); margin-bottom: 1.2rem; margin-top: .5rem; line-height: 1.5; }
+    label { display: block; font-size: .83rem; font-weight: 600; color: var(--text); margin-bottom: .35rem; }
+    select { width: 100%; padding: .6rem .85rem; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: .92rem; background: var(--surface); color: var(--text); appearance: none; -webkit-appearance: none; padding-right: 2.5rem; cursor: pointer; transition: border-color var(--transition), box-shadow var(--transition); }
+    select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,163,166,.18); }
+    select:hover { border-color: var(--primary); }
+    input[type=range] { width: 100%; height: 6px; -webkit-appearance: none; appearance: none; background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--fill, 62.5%), var(--border) var(--fill, 62.5%)); border-radius: 3px; outline: none; cursor: pointer; margin: .4rem 0; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--primary); border: 3px solid #fff; box-shadow: 0 1px 5px rgba(0,0,0,.22); cursor: pointer; transition: transform var(--transition); }
+    input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+    input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: var(--primary); border: 3px solid #fff; box-shadow: 0 1px 5px rgba(0,0,0,.22); cursor: pointer; }
+    .range-labels { display: flex; justify-content: space-between; font-size: .75rem; color: var(--text-muted); margin-top: .15rem; }
+    .year-display { text-align: center; margin: .6rem 0 .3rem; }
+    .year-value { display: inline-block; background: var(--primary); color: #fff; font-size: 1.55rem; font-weight: 700; padding: .3rem 1.2rem; border-radius: 6px; min-width: 5rem; letter-spacing: .02em; }
+    .scenario-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; margin-top: .25rem; }
+    .scenario-option input[type=radio] { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+    .scenario-option label { display: flex; flex-direction: column; gap: .2rem; padding: .75rem .85rem; border: 2px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: border-color var(--transition), background var(--transition), box-shadow var(--transition); position: relative; min-height: 90px; font-weight: 400; margin: 0; }
+    .scenario-option label:hover { border-color: var(--accent); background: #f0fdfd; box-shadow: 0 2px 8px rgba(0,163,166,.12); }
+    .scenario-option input[type=radio]:checked + label { border-color: var(--primary); background: #eef5ff; box-shadow: 0 0 0 3px rgba(0,94,162,.14); }
+    .scenario-name { font-size: .88rem; font-weight: 700; color: var(--primary); line-height: 1.2; }
+    .scenario-global { font-size: .75rem; color: var(--text-muted); font-weight: 500; }
+    .scenario-desc { font-size: .72rem; color: var(--text-muted); line-height: 1.35; margin-top: .1rem; }
+    .scenario-badge { position: absolute; top: .4rem; right: .4rem; background: var(--accent); color: #fff; font-size: .62rem; font-weight: 700; padding: .15rem .45rem; border-radius: 10px; text-transform: uppercase; }
+    .reg-note { background: var(--warn-bg); border: 1px solid #ffe082; border-left: 4px solid #f9a825; border-radius: var(--radius-sm); padding: .75rem 1rem; font-size: .82rem; color: var(--warn-text); line-height: 1.5; margin-top: 1rem; }
+    .btn-primary { display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; padding: .95rem 1.5rem; background: var(--primary); color: #fff; border: none; border-radius: var(--radius); font-size: 1.05rem; font-weight: 700; cursor: pointer; letter-spacing: .02em; box-shadow: var(--shadow-md); transition: background var(--transition), box-shadow var(--transition), transform var(--transition); margin: .75rem 0 1.5rem; }
+    .btn-primary:hover { background: var(--primary-dark); box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); box-shadow: var(--shadow-sm); }
+    .api-card { border-left: 4px solid var(--accent); background: #f7fffe; }
+    .api-card h3 { font-size: .95rem; color: var(--accent-dark); margin-bottom: .6rem; }
+    .api-endpoint { font-family: Cascadia Code, Fira Code, Consolas, monospace; font-size: .8rem; background: #eef8f8; border: 1px solid #b2dfdf; border-radius: var(--radius-sm); padding: .55rem .85rem; color: #004d50; word-break: break-all; display: block; margin: .5rem 0; }
+    .api-links { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: .6rem; }
+    .api-link { font-size: .82rem; color: var(--accent-dark); text-decoration: none; font-weight: 600; padding: .3rem .65rem; border: 1px solid var(--accent); border-radius: var(--radius-sm); transition: background var(--transition), color var(--transition); }
+    .api-link:hover { background: var(--accent); color: #fff; }
+    .site-footer { background: #1a2b3c; color: rgba(255,255,255,.65); text-align: center; padding: 2rem 1.5rem; font-size: .78rem; line-height: 1.8; }
+    .site-footer a { color: rgba(255,255,255,.55); text-decoration: none; }
+    .site-footer a:hover { color: #fff; }
+    .footer-brand { font-size: .9rem; font-weight: 600; color: rgba(255,255,255,.85); margin-bottom: .3rem; }
+    .footer-sep { margin: 0 .5rem; opacity: .4; }
+    @media (max-width: 768px) { .site-header { padding: 0 1rem; } .hero { padding: 2.5rem 1rem 2rem; } .hero h1 { font-size: 1.6rem; } .main-container { padding: 1.5rem 1rem 2.5rem; } .card { padding: 1.25rem; } .scenario-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 460px) { .scenario-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-brand">CVG <span>|</span> Wizard Suite</div>
+  <nav class="site-nav">
+    <a href="#">Storm&nbsp;Surge</a>
+    <span class="nav-sep">|</span>
+    <a href="/" class="active">SLR</a>
+    <span class="nav-sep">|</span>
+    <a href="#">Rainfall</a>
+    <span class="nav-sep">|</span>
+    <a href="/docs" target="_blank">API&nbsp;Docs</a>
+  </nav>
+</header>
+<section class="hero">
+  <div class="hero-icon">&#127754;</div>
+  <h1>Sea Level Rise Projection Wizard</h1>
+  <p>Station-specific NOAA TR-083 relative sea level rise projections for coastal resilience planning</p>
+  <div class="hero-badges">
+    <span class="hero-badge">NOAA Sweet et al. 2022</span>
+    <span class="hero-badge">14 Tide Gauge Stations</span>
+    <span class="hero-badge">6 IPCC Scenarios</span>
+    <span class="hero-badge">2020 &ndash; 2100 Horizon</span>
+  </div>
+</section>
+<main class="main-container">
+  <form method="POST" action="/project">
+    <div class="card">
+      <h2>&#128205;&nbsp; Step 1 &mdash; Tide Gauge Station</h2>
+      <p class="card-hint">Select the NOAA CO-OPS station nearest your project site. Station selection controls the local vertical land motion (VLM) correction applied to RSLR projections per NOAA TR-083 (Sweet et al. 2022).</p>
+      <label for="station_id">NOAA CO-OPS Station</label>
+      <select name="station_id" id="station_id" required>
+        <option value="" disabled selected>-- Select a station --</option>
+        <optgroup label="Florida Keys">
+          <option value="8724580">Key West, FL (8724580)</option>
+          <option value="8723970">Vaca Key (Marathon), FL (8723970)</option>
+        </optgroup>
+        <optgroup label="SE Florida">
+          <option value="8722670">Lake Worth Pier, FL (8722670)</option>
+        </optgroup>
+        <optgroup label="East-Central Florida">
+          <option value="8721604">Canaveral Harbor, FL (8721604)</option>
+        </optgroup>
+        <optgroup label="Tampa Bay">
+          <option value="8726384">Port Manatee, FL (8726384)</option>
+          <option value="8726520">St. Petersburg, FL (8726520)</option>
+        </optgroup>
+        <optgroup label="Big Bend / Nature Coast">
+          <option value="8727520">Cedar Key, FL (8727520)</option>
+        </optgroup>
+        <optgroup label="NW Florida Panhandle">
+          <option value="8728690">Apalachicola, FL (8728690)</option>
+          <option value="8729840">Pensacola, FL (8729840)</option>
+        </optgroup>
+        <optgroup label="NE Florida">
+          <option value="8720218">Fernandina Beach, FL (8720218)</option>
+        </optgroup>
+        <optgroup label="SE Georgia">
+          <option value="8679511">Brunswick, GA (8679511)</option>
+        </optgroup>
+        <optgroup label="South Carolina">
+          <option value="8665530">Charleston, SC (8665530)</option>
+        </optgroup>
+        <optgroup label="Texas Gulf Coast">
+          <option value="8771013">Eagle Point (Galveston Bay), TX (8771013)</option>
+        </optgroup>
+        <optgroup label="Louisiana Gulf Coast">
+          <option value="8761724">Grand Isle, LA (8761724)</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="card">
+      <h2>&#128202;&nbsp; Step 2 &mdash; NOAA Scenario</h2>
+      <p class="card-hint">Select the SLR planning scenario from NOAA TR-083 (Sweet et al. 2022). The <strong>Intermediate</strong> scenario is the FEMA-recommended baseline for coastal planning and the Florida BRACE standard.</p>
+      <div class="scenario-grid">
+        <div class="scenario-option">
+          <input type="radio" name="scenario" id="sc_low" value="low" />
+          <label for="sc_low"><span class="scenario-name">Low</span><span class="scenario-global">0.30 m &bull; 1.0 ft by 2100</span><span class="scenario-desc">Very low emissions; low ice-sheet contribution</span></label>
+        </div>
+        <div class="scenario-option">
+          <input type="radio" name="scenario" id="sc_intlow" value="intermediate_low" />
+          <label for="sc_intlow"><span class="scenario-name">Intermediate-Low</span><span class="scenario-global">0.56 m &bull; 1.8 ft by 2100</span><span class="scenario-desc">Below IPCC AR6 central estimate</span></label>
+        </div>
+        <div class="scenario-option">
+          <input type="radio" name="scenario" id="sc_int" value="intermediate" checked />
+          <label for="sc_int"><span class="scenario-badge">Recommended</span><span class="scenario-name">Intermediate</span><span class="scenario-global">1.00 m &bull; 3.3 ft by 2100</span><span class="scenario-desc">FEMA &amp; NOAA planning baseline</span></label>
+        </div>
+        <div class="scenario-option">
+          <input type="radio" name="scenario" id="sc_inthigh" value="intermediate_high" />
+          <label for="sc_inthigh"><span class="scenario-name">Intermediate-High</span><span class="scenario-global">1.50 m &bull; 4.9 ft by 2100</span><span class="scenario-desc">Partial ice-sheet destabilization</span></label>
+        </div>
+        <div class="scenario-option">
+          <input type="radio" name="scenario" id="sc_high" value="high" />
+          <label for="sc_high"><span class="scenario-name">High</span><span class="scenario-global">2.00 m &bull; 6.6 ft by 2100</span><span class="scenario-desc">High emissions; significant ice-sheet loss</span></label>
+        </div>
+        <div class="scenario-option">
+          <input type="radio" name="scenario" id="sc_extreme" value="extreme" />
+          <label for="sc_extreme"><span class="scenario-name">Extreme</span><span class="scenario-global">3.21 m &bull; 10.5 ft by 2100</span><span class="scenario-desc">Low-probability, high-consequence scenario</span></label>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>&#128197;&nbsp; Step 3 &mdash; Planning Horizon</h2>
+      <p class="card-hint">Select the target year for your sea level rise projection (2020&ndash;2100). Values between tabular intervals are linearly interpolated per NOAA TR-083 Appendix C.</p>
+      <label for="target_year">Planning Year</label>
+      <input type="range" name="target_year" id="target_year"
+             min="2020" max="2100" step="5" value="2070"
+             oninput="updateYear(this.value)" />
+      <div class="range-labels">
+        <span>2020</span><span>2040</span><span>2060</span><span>2080</span><span>2100</span>
+      </div>
+      <div class="year-display"><span class="year-value" id="year_val">2070</span></div>
+      <div class="reg-note">
+        &#8505;&#65039; <strong>Regulatory guidance:</strong> For FEMA Resilience Action Plan compliance,
+        a <strong>50-year horizon (2070)</strong> is standard. For critical infrastructure and
+        transportation assets, use <strong>2100</strong> (100-year horizon). The Intermediate
+        scenario at 2070 is required under Florida&#39;s BRACE resilience guidance.
+      </div>
+    </div>
+    <button type="submit" class="btn-primary">&#9654;&#65039; Calculate Sea Level Rise</button>
+  </form>
+  <div class="card api-card">
+    <h3>&#128279; REST API</h3>
+    <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.4rem;">Integrate SLR projections into your GIS workflows via the JSON API:</p>
+    <code class="api-endpoint">GET /api/project?station_id=8724580&amp;year=2070&amp;scenario=intermediate</code>
+    <div class="api-links">
+      <a href="/docs" target="_blank" class="api-link">&#128196; API Docs</a>
+      <a href="/api/stations" target="_blank" class="api-link">&#128205; Stations JSON</a>
+    </div>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="footer-brand">Clearview Geographic, LLC</div>
+  <div>CVG SLR Wizard v{{ version }} &bull; NOAA TR-083 &mdash; Sweet et al. (2022) &bull; &copy; 2024 Clearview Geographic, LLC</div>
+  <div style="margin-top:.4rem;">
+    <a href="https://oceanservice.noaa.gov/hazards/sealevelrise/sealevelrise-tech-report.html" target="_blank">NOAA Technical Report NOS CO-OPS 083</a>
+    &bull;
+    <a href="/docs" target="_blank">API Documentation</a>
+    &bull; Proprietary Software
+  </div>
+</footer>
+<script>
+function updateYear(val) {
+  document.getElementById("year_val").textContent = val;
+  var input = document.getElementById("target_year");
+  var pct = ((val - parseInt(input.min)) / (parseInt(input.max) - parseInt(input.min)) * 100).toFixed(1) + "%";
+  input.style.setProperty("--fill", pct);
+}
+document.addEventListener("DOMContentLoaded", function() { updateYear("2070"); });
+</script>
+</body>
+</html>

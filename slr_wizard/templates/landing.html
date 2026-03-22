@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CVG Sea Level Rise Wizard — Clearview Geographic</title>
+  <meta name="description" content="NOAA-based sea level rise projections for coastal planning. Supports all IPCC/NOAA TR-083 scenarios, 500+ tide stations, and VDatum datum conversion." />
+  <style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --clr-primary:#005ea2;
+  --clr-primary-dk:#00447a;
+  --clr-accent:#00a3a6;
+  --clr-bg:#f5f7fa;
+  --clr-surface:#ffffff;
+  --clr-border:#d0d7de;
+  --clr-muted:#6e7780;
+  --clr-text:#1b2631;
+  --radius:12px;
+  --shadow-sm:0 1px 4px rgba(0,0,0,.08);
+  --shadow-md:0 4px 18px rgba(0,0,0,.10);
+  --trans:.22s ease;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--clr-bg);color:var(--clr-text);line-height:1.6}
+a{color:var(--clr-primary);text-decoration:none}
+header{background:var(--clr-primary);color:#fff;padding:.75rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.header-logo{display:flex;align-items:center;gap:.65rem;color:#fff;font-weight:700;font-size:1.05rem}
+.header-logo .badge{background:var(--clr-accent);font-size:.65rem;padding:.15em .5em;border-radius:4px;letter-spacing:.05em;text-transform:uppercase;font-weight:700}
+header nav a{color:rgba(255,255,255,.85);font-size:.88rem;font-weight:500;margin-left:1.5rem;transition:color var(--trans)}
+header nav a:hover{color:#fff}
+.hero{background:linear-gradient(140deg,#003355 0%,#005080 40%,var(--clr-primary) 70%,var(--clr-accent) 100%);color:#fff;padding:5rem 2rem 4.5rem;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;opacity:.06;background:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:12px 12px;pointer-events:none}
+.hero__eyebrow{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:.3em 1em;font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:1.25rem}
+.hero h1{font-size:clamp(2rem,5vw,3.25rem);font-weight:900;letter-spacing:-.03em;line-height:1.1;margin-bottom:1rem;max-width:760px;margin-left:auto;margin-right:auto}
+.hero__sub{font-size:1.12rem;opacity:.88;max-width:660px;margin:0 auto 2rem;line-height:1.65}
+.hero__badges{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;margin-bottom:2.5rem}
+.badge-pill{display:inline-flex;align-items:center;gap:.4rem;padding:.4em 1em;border-radius:20px;font-size:.78rem;font-weight:700;letter-spacing:.03em;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff}
+.hero__cta{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+.btn-primary{display:inline-flex;align-items:center;gap:.5rem;background:#fff;color:var(--clr-primary-dk);padding:.85rem 2.25rem;border-radius:8px;font-size:1.05rem;font-weight:800;transition:transform var(--trans),box-shadow var(--trans);box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.28);text-decoration:none;color:var(--clr-primary-dk)}
+.btn-outline{display:inline-flex;align-items:center;gap:.5rem;background:transparent;color:#fff;padding:.85rem 1.75rem;border-radius:8px;font-size:1rem;font-weight:600;border:2px solid rgba(255,255,255,.55);transition:all var(--trans)}
+.btn-outline:hover{background:rgba(255,255,255,.12);border-color:#fff;text-decoration:none;color:#fff}
+.stats-bar{background:var(--clr-primary-dk);color:#fff;padding:1.25rem 2rem;display:flex;align-items:center;justify-content:center;gap:3rem;flex-wrap:wrap;text-align:center}
+.stat__value{font-size:1.55rem;font-weight:900;display:block;color:var(--clr-accent)}
+.stat__label{font-size:.75rem;opacity:.75;text-transform:uppercase;letter-spacing:.07em}
+section{padding:4.5rem 2rem}
+.container{max-width:1100px;margin:0 auto}
+.section-label{font-size:.78rem;font-weight:700;color:var(--clr-accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem}
+.section-heading{font-size:clamp(1.4rem,3vw,2.1rem);font-weight:800;letter-spacing:-.02em;line-height:1.2;margin-bottom:1rem}
+.section-lead{font-size:1.05rem;color:var(--clr-muted);max-width:640px;line-height:1.7;margin-bottom:2.5rem}
+.features-section{background:var(--clr-surface)}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+.feature-card{background:var(--clr-bg);border:1px solid var(--clr-border);border-radius:var(--radius);padding:1.75rem;transition:box-shadow var(--trans),transform var(--trans)}
+.feature-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px)}
+.feature-card__icon{font-size:2.25rem;margin-bottom:.85rem;display:block}
+.feature-card__title{font-size:1rem;font-weight:700;margin-bottom:.5rem}
+.feature-card__body{font-size:.875rem;color:var(--clr-muted);line-height:1.65}
+.scenarios-section{background:var(--clr-bg)}
+.scenarios-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem}
+.scenario-card{background:var(--clr-surface);border:1px solid var(--clr-border);border-radius:var(--radius);padding:1.25rem;text-align:center;transition:border-color var(--trans)}
+.scenario-card:hover{border-color:var(--clr-accent)}
+.scenario-card__icon{font-size:1.8rem;margin-bottom:.6rem}
+.scenario-card__name{font-weight:800;font-size:.9rem;margin-bottom:.3rem;color:var(--clr-text)}
+.scenario-card__desc{font-size:.78rem;color:var(--clr-muted);line-height:1.5}
+.cta-section{background:linear-gradient(135deg,var(--clr-primary-dk),var(--clr-primary));color:#fff;text-align:center;padding:4rem 2rem}
+.cta-section h2{font-size:clamp(1.5rem,3.5vw,2.2rem);font-weight:800;margin-bottom:.85rem;letter-spacing:-.02em}
+.cta-section p{font-size:1.05rem;opacity:.88;max-width:560px;margin:0 auto 2rem;line-height:1.65}
+footer{background:var(--clr-primary-dk);color:rgba(255,255,255,.7);padding:2rem;text-align:center;font-size:.82rem;line-height:1.8}
+footer a{color:rgba(255,255,255,.85)}
+footer a:hover{color:#fff}
+@media(max-width:640px){.hero{padding:3.5rem 1.25rem 3rem}.stats-bar{gap:1.5rem}section{padding:3rem 1.25rem}}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">
+    <span>🌊</span>
+    <span>CVG SLR Wizard</span>
+    <span class="badge">v1.1.1</span>
+  </div>
+  <nav>
+    <a href="/wizard">Launch Wizard</a>
+    <a href="/docs" target="_blank" rel="noopener">API Docs</a>
+    <a href="https://www.clearviewgeographic.com" target="_blank" rel="noopener">Clearview Geographic</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero__eyebrow">Clearview Geographic Engineering Tools</div>
+  <h1>CVG Sea Level Rise<br>Projection Wizard</h1>
+  <p class="hero__sub">Instantly compute NOAA TR-083 sea level rise projections for any U.S. coastal location. Six IPCC scenarios, 500+ NOAA tide stations, any planning horizon from 2020 to 2100.</p>
+  <div class="hero__badges">
+    <span class="badge-pill">📡 NOAA TR-083</span>
+    <span class="badge-pill">🌍 IPCC Scenarios</span>
+    <span class="badge-pill">📏 VDatum Integration</span>
+    <span class="badge-pill">🔒 Local Processing</span>
+  </div>
+  <div class="hero__cta">
+    <a href="/wizard" class="btn-primary">🚀 Launch SLR Wizard</a>
+    <a href="/docs" class="btn-outline" target="_blank" rel="noopener">📖 API Docs</a>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div><span class="stat__value">6</span><span class="stat__label">SLR Scenarios</span></div>
+  <div><span class="stat__value">500+</span><span class="stat__label">NOAA Tide Stations</span></div>
+  <div><span class="stat__value">2020–2100</span><span class="stat__label">Planning Horizon</span></div>
+  <div><span class="stat__value">TR-083</span><span class="stat__label">NOAA Standard</span></div>
+</div>
+
+<section class="features-section">
+  <div class="container">
+    <p class="section-label">Core Capabilities</p>
+    <h2 class="section-heading">NOAA-Standard SLR Projections for Coastal Planning</h2>
+    <p class="section-lead">The CVG SLR Wizard delivers peer-reviewed, NOAA Technical Report 083 sea level rise projections in seconds — fully compatible with FEMA Risk MAP and NOAA coastal resilience workflows.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-card__icon">📡</span>
+        <h3 class="feature-card__title">NOAA TR-083 (Sweet et al. 2022)</h3>
+        <p class="feature-card__body">All six official NOAA/IPCC-aligned scenarios: Low, Intermediate-Low, Intermediate, Intermediate-High, High, and Extreme — the definitive U.S. federal standard for coastal planning.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-card__icon">📍</span>
+        <h3 class="feature-card__title">Station-Based Local Projections</h3>
+        <p class="feature-card__body">Site-specific projections relative to 500+ NOAA tide gauge stations nationwide. Account for local subsidence, vertical land motion, and regional ocean dynamics automatically.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-card__icon">📊</span>
+        <h3 class="feature-card__title">Sensitivity Analysis</h3>
+        <p class="feature-card__body">Instantly compare all six scenarios for your station and target year in a single table — critical for risk-based planning, vulnerability assessments, and adaptation strategy development.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-card__icon">🔗</span>
+        <h3 class="feature-card__title">Storm Surge Wizard Integration</h3>
+        <p class="feature-card__body">SLR projections pipe directly into the CVG Storm Surge Depth Grid Wizard — add future sea level to any storm surge water surface for seamless future-conditions inundation analysis.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-card__icon">📏</span>
+        <h3 class="feature-card__title">VDatum Datum Support</h3>
+        <p class="feature-card__body">Report projections in NAVD88, MLLW, MSL, or any supported NOAA VDatum vertical datum. Essential for coordinating with FEMA, USGS, and NOAA deliverables.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-card__icon">🌐</span>
+        <h3 class="feature-card__title">REST API Access</h3>
+        <p class="feature-card__body">Full OpenAPI/Swagger REST API for batch queries, GIS integration, and programmatic workflows. Ideal for automated vulnerability assessments across large coastal portfolios.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="scenarios-section">
+  <div class="container">
+    <p class="section-label">NOAA TR-083 Scenarios</p>
+    <h2 class="section-heading">Six Federally-Recognized SLR Scenarios</h2>
+    <p class="section-lead">Select the planning scenario appropriate for your project's risk tolerance and design life. The Intermediate scenario is recommended for most coastal resilience and flood mitigation planning.</p>
+    <div class="scenarios-grid">
+      <div class="scenario-card"><div class="scenario-card__icon">🟢</div><div class="scenario-card__name">Low</div><div class="scenario-card__desc">Minimum plausible future rise; for risk-tolerant near-term analysis</div></div>
+      <div class="scenario-card"><div class="scenario-card__icon">🔵</div><div class="scenario-card__name">Intermediate-Low</div><div class="scenario-card__desc">Conservative planning; moderate risk tolerance</div></div>
+      <div class="scenario-card"><div class="scenario-card__icon">⭐</div><div class="scenario-card__name">Intermediate</div><div class="scenario-card__desc">NOAA-recommended default for most planning applications</div></div>
+      <div class="scenario-card"><div class="scenario-card__icon">🟠</div><div class="scenario-card__name">Intermediate-High</div><div class="scenario-card__desc">Enhanced risk management; critical infrastructure design</div></div>
+      <div class="scenario-card"><div class="scenario-card__icon">🔴</div><div class="scenario-card__name">High</div><div class="scenario-card__desc">Risk-averse planning; long design-life structures</div></div>
+      <div class="scenario-card"><div class="scenario-card__icon">⚫</div><div class="scenario-card__name">Extreme</div><div class="scenario-card__desc">Worst-case ice-sheet collapse scenario; critical life-safety</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="container">
+    <h2>Start Your Sea Level Rise Analysis</h2>
+    <p>Select a NOAA tide station, choose a scenario, and get instantaneous SLR projections for any planning horizon — all powered by NOAA TR-083 (Sweet et al. 2022).</p>
+    <a href="/wizard" class="btn-primary">🚀 Open SLR Wizard</a>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025–2026 <a href="https://www.clearviewgeographic.com" target="_blank" rel="noopener">Clearview Geographic, LLC</a> — All Rights Reserved | Proprietary Software</p>
+  <p style="margin-top:.35rem">CVG Sea Level Rise Wizard &bull; NOAA TR-083 (Sweet et al. 2022) &bull; <a href="/wizard">Wizard</a> &bull; <a href="/docs" target="_blank">API Docs</a></p>
+</footer>
+
+</body>
+</html>

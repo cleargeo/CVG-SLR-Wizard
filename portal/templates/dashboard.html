@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<!-- =============================================================================
+     CVG SLR Wizard Portal — Dashboard
+     Clearview Geographic LLC — Proprietary and Confidential
+     ADF Build: 1.0.x | HTML5 / Jinja2
+     ============================================================================= -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="refresh" content="120" />
+  <title>CVG SLR Wizard — Portal</title>
+  <style>
+    :root { --cvg-blue:#003366; --cvg-teal:#00a499; --cvg-light:#f5f7fa; --cvg-border:#d0d7de; --cvg-text:#1c2b3a; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--cvg-light); color:var(--cvg-text); }
+    header { background:var(--cvg-blue); color:#fff; padding:1rem 2rem; display:flex; align-items:center; }
+    header h1 { font-size:1.3rem; font-weight:600; }
+    header p { font-size:0.8rem; opacity:0.75; margin-top:0.15rem; }
+    .meta { margin-left:auto; font-size:0.8rem; opacity:0.7; text-align:right; }
+    .container { max-width:1100px; margin:1.5rem auto; padding:0 1rem; display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; }
+    .card { background:#fff; border:1px solid var(--cvg-border); border-radius:8px; padding:1.25rem; }
+    .card.full { grid-column:1/-1; }
+    .card h2 { font-size:0.95rem; color:var(--cvg-blue); margin-bottom:0.85rem; border-bottom:2px solid var(--cvg-teal); padding-bottom:0.35rem; }
+    .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:0.75rem; }
+    .stat { background:var(--cvg-light); border-radius:6px; padding:0.75rem 1rem; text-align:center; }
+    .stat .val { font-size:1.6rem; font-weight:700; color:var(--cvg-blue); }
+    .stat .lbl { font-size:0.76rem; color:#555; margin-top:0.2rem; }
+    .pill { display:inline-block; padding:0.2rem 0.6rem; border-radius:12px; font-size:0.78rem; font-weight:600; }
+    .pill-ok  { background:#d4edda; color:#155724; }
+    .pill-err { background:#f8d7da; color:#721c24; }
+    table { width:100%; border-collapse:collapse; font-size:0.84rem; }
+    th { background:var(--cvg-blue); color:#fff; padding:0.45rem 0.7rem; text-align:left; }
+    td { padding:0.4rem 0.7rem; border-bottom:1px solid var(--cvg-border); }
+    tr:nth-child(even) td { background:#f8fafc; }
+    .btn { display:inline-flex; align-items:center; padding:0.45rem 1rem; border:none; border-radius:4px; font-size:0.85rem; font-weight:600; cursor:pointer; text-decoration:none; }
+    .btn-primary { background:var(--cvg-teal); color:#fff; }
+    .btn-secondary { background:var(--cvg-blue); color:#fff; }
+    .btn:hover { opacity:0.85; }
+    input,select { padding:0.45rem 0.7rem; border:1px solid var(--cvg-border); border-radius:4px; font-size:0.88rem; }
+    input:focus,select:focus { outline:none; border-color:var(--cvg-teal); }
+    .proj-row { display:grid; grid-template-columns:1fr 1fr 1fr 1fr auto; gap:0.5rem; align-items:end; margin-bottom:0.75rem; }
+    #proj-result { margin-top:0.75rem; font-size:0.9rem; min-height:2rem; }
+    footer { text-align:center; font-size:0.76rem; color:#888; padding:1.5rem 0; grid-column:1/-1; }
+    @media (max-width:700px) { .container { grid-template-columns:1fr; } .proj-row { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>&#127754; CVG SLR Wizard — Portal Dashboard</h1>
+    <p>Sea Level Rise Wizard API Monitor &amp; Quick-Access Dashboard</p>
+  </div>
+  <div class="meta">
+    Portal v{{ portal_version }}<br>
+    Updated: {{ generated_at }}<br>
+    <span style="opacity:0.6">Auto-refresh: 120 s</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ── API Status ──────────────────────────────────────── -->
+  <div class="card">
+    <h2>&#128994; API Status</h2>
+    {% if api_error %}
+      <p><span class="pill pill-err">&#10060; OFFLINE</span> &nbsp; {{ api_error }}</p>
+      <p style="margin-top:0.75rem;font-size:0.82rem;color:#666;">Target: <code>{{ api_url }}</code></p>
+    {% else %}
+      <p><span class="pill pill-ok">&#10003; ONLINE</span> &nbsp; SLR Wizard API is reachable</p>
+      {% if api_health %}
+      <div class="stat-grid" style="margin-top:0.85rem;">
+        <div class="stat"><div class="val">{{ api_health.version | default('—') }}</div><div class="lbl">Version</div></div>
+        <div class="stat"><div class="val">{{ station_count }}</div><div class="lbl">Stations</div></div>
+        <div class="stat"><div class="val">{{ history | length }}</div><div class="lbl">Runs (session)</div></div>
+      </div>
+      {% endif %}
+      <p style="margin-top:0.85rem;font-size:0.82rem;color:#666;">Endpoint: <code>{{ api_url }}</code></p>
+    {% endif %}
+    <div style="margin-top:1rem; display:flex; gap:0.5rem;">
+      <a href="{{ api_url }}/docs" target="_blank" class="btn btn-secondary">API Docs</a>
+      <a href="{{ api_url }}/health" target="_blank" class="btn btn-secondary">Health JSON</a>
+    </div>
+  </div>
+
+  <!-- ── Quick Projection ───────────────────────────────── -->
+  <div class="card">
+    <h2>&#128200; Quick SLR Projection</h2>
+    <div class="proj-row">
+      <div>
+        <label style="font-size:0.8rem;font-weight:600;">Station</label><br>
+        <select id="p-station">
+          <option value="8724580">Key West (8724580)</option>
+          <option value="8723214">Virginia Key (8723214)</option>
+          <option value="8726724">St. Pete (8726724)</option>
+          <option value="8670870">Ft. Pulaski (8670870)</option>
+          <option value="8665530">Charleston (8665530)</option>
+          <option value="8658120">Wilmington (8658120)</option>
+          <option value="national_average">National Avg</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:0.8rem;font-weight:600;">Year</label><br>
+        <select id="p-year">
+          <option>2030</option><option>2040</option><option value="2050" selected>2050</option>
+          <option>2060</option><option>2070</option><option>2080</option><option>2090</option><option>2100</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:0.8rem;font-weight:600;">Scenario</label><br>
+        <select id="p-scenario">
+          <option>Low</option><option>Intermediate-Low</option>
+          <option selected>Intermediate</option><option>Intermediate-High</option>
+          <option>High</option><option>Extreme</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:0.8rem;font-weight:600;">Datum</label><br>
+        <select id="p-datum"><option>NAVD88</option><option>MSL</option><option>MLLW</option></select>
+      </div>
+      <div>
+        <button class="btn btn-primary" onclick="doProject()">&#9654; Run</button>
+      </div>
+    </div>
+    <div id="proj-result" style="color:#555;">Enter parameters and click Run.</div>
+  </div>
+
+  <!-- ── Stations ───────────────────────────────────────── -->
+  <div class="card">
+    <h2>&#128205; Supported NOAA Stations ({{ station_count }})</h2>
+    {% if stations %}
+    <table>
+      <thead><tr><th>Station ID</th><th>Name</th><th>State</th></tr></thead>
+      <tbody>
+        {% for s in stations %}
+        <tr>
+          <td><code>{{ s.station_id }}</code></td>
+          <td>{{ s.name }}</td>
+          <td>{{ s.state | default('—') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p style="color:#888;font-size:0.88rem;">Station data unavailable — API may be offline.</p>
+    {% endif %}
+  </div>
+
+  <!-- ── Run History ────────────────────────────────────── -->
+  <div class="card">
+    <h2>&#128203; Session Run History ({{ history | length }} / {{ 50 }})</h2>
+    {% if history %}
+    <table>
+      <thead><tr><th>Time</th><th>Station</th><th>Year</th><th>Scenario</th><th>SLR (m)</th></tr></thead>
+      <tbody>
+        {% for h in history %}
+        <tr>
+          <td>{{ h.ts }}</td>
+          <td>{{ h.station_id }}</td>
+          <td>{{ h.year }}</td>
+          <td>{{ h.scenario }}</td>
+          <td>{% if h.slr_m is not none %}{{ '%.3f'|format(h.slr_m) }}{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div style="margin-top:0.75rem;">
+      <button class="btn btn-secondary" onclick="clearHistory()">&#128465; Clear History</button>
+    </div>
+    {% else %}
+    <p style="color:#888;font-size:0.88rem;">No projections run this session yet.</p>
+    {% endif %}
+  </div>
+
+  <footer>CVG SLR Wizard Portal &mdash; Clearview Geographic LLC &mdash; Proprietary &amp; Confidential</footer>
+
+</div><!-- /.container -->
+
+<script>
+async function doProject() {
+  const station  = document.getElementById('p-station').value;
+  const year     = document.getElementById('p-year').value;
+  const scenario = document.getElementById('p-scenario').value;
+  const datum    = document.getElementById('p-datum').value;
+  const out      = document.getElementById('proj-result');
+  out.textContent = 'Running projection...';
+  out.style.color = '#555';
+  try {
+    const url = `/api/proxy/project?station_id=${encodeURIComponent(station)}&year=${year}&scenario=${encodeURIComponent(scenario)}&baseline_datum=${encodeURIComponent(datum)}`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || data.detail || JSON.stringify(data));
+    const slrM  = data.slr_m  != null ? data.slr_m.toFixed(3)  + ' m'  : '—';
+    const slrFt = data.slr_ft != null ? data.slr_ft.toFixed(2) + ' ft' : '—';
+    out.innerHTML = `<strong>${scenario} / ${year}:</strong> ${slrM} &nbsp; (${slrFt}) &nbsp;
+      <span style="color:green;font-size:0.82rem;">&#10003; complete</span>`;
+    out.style.color = '#1c2b3a';
+    setTimeout(() => window.location.reload(), 1500);
+  } catch (e) {
+    out.textContent = 'Error: ' + e.message;
+    out.style.color = 'red';
+  }
+}
+async function clearHistory() {
+  await fetch('/api/history', { method: 'DELETE' });
+  window.location.reload();
+}
+</script>
+</body>
+</html>

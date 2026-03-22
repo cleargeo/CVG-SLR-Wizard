@@ -1,0 +1,29 @@
+{
+  "_comment": "CVG SLR Wizard — Demo Configuration (NOT for regulatory use)",
+  "project_name": "demo_slr_key_west_2070",
+  "inputs": {
+    "dem_path": "slr_wizard/demo_data/dem.tif",
+    "dem_unit": "m",
+    "dem_nodata": -9999,
+    "aoi_polygon": null
+  },
+  "slr_projection": {
+    "station_id": "8724580",
+    "station_name": "Key West, FL",
+    "scenario": "Intermediate",
+    "year": 2070,
+    "baseline_datum": "NAVD88"
+  },
+  "inundation": {
+    "min_depth_m": 0.1,
+    "connectivity": true,
+    "dry_value": 0.0,
+    "output_nodata": -9999.0
+  },
+  "outputs": {
+    "depth_grid": "slr_wizard/demo_data/slr_depth_2070_intermediate.tif",
+    "metadata_json": "slr_wizard/demo_data/slr_depth_2070_intermediate.json",
+    "report_pdf": "slr_wizard/demo_data/slr_report_2070_intermediate.pdf"
+  },
+  "notes": "DEMO CONFIG — synthetic DEM for testing only. Not valid for regulatory submission. Reference: NOAA TR-083 (Sweet et al. 2022)."
+}

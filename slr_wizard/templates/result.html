@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<!-- CVG SLR Wizard - Web UI: Projection Result | Clearview Geographic LLC -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SLR Projection Result - CVG SLR Wizard</title>
+  <style>
+    :root { --primary: #005ea2; --primary-dark: #00437a; --accent: #00a3a6; --accent-dark: #007d80; --bg: #f5f7fa; --surface: #fff; --border: #d0d7de; --text: #1c2b3a; --text-muted: #5a6b7b; --shadow-sm: 0 1px 3px rgba(0,0,0,.08); --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06); --radius: 8px; --radius-sm: 4px; --transition: 0.18s ease; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Segoe UI, system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; min-height: 100vh; }
+    .site-header { background: var(--primary); color: #fff; padding: 0 2rem; display: flex; align-items: center; height: 56px; gap: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.18); position: sticky; top: 0; z-index: 100; }
+    .site-brand { font-size: 1rem; font-weight: 700; letter-spacing: .03em; }
+    .site-brand span { opacity: .55; font-weight: 400; }
+    .back-link { margin-left: auto; color: rgba(255,255,255,.85); text-decoration: none; font-size: .85rem; font-weight: 500; padding: .3rem .75rem; border: 1px solid rgba(255,255,255,.3); border-radius: var(--radius-sm); transition: background var(--transition); }
+    .back-link:hover { background: rgba(255,255,255,.12); color: #fff; }
+    .main-container { max-width: 760px; margin: 0 auto; padding: 2.5rem 1.25rem 3rem; }
+    .result-hero { background: linear-gradient(135deg, #005ea2 0%, #003d7a 60%, #004d60 100%); color: #fff; border-radius: var(--radius); padding: 2rem 2rem 1.75rem; margin-bottom: 1.25rem; box-shadow: var(--shadow-md); }
+    .result-hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .result-station { font-size: 1.1rem; font-weight: 700; margin-bottom: .15rem; }
+    .result-region { font-size: .85rem; opacity: .75; }
+    .result-meta { font-size: .82rem; opacity: .75; margin-top: .5rem; }
+    .result-values { display: flex; gap: 2rem; margin-top: 1.5rem; flex-wrap: wrap; }
+    .result-val-block { text-align: center; }
+    .result-val-num { font-size: 3rem; font-weight: 800; line-height: 1; letter-spacing: -.02em; }
+    .result-val-unit { font-size: .95rem; opacity: .8; margin-top: .2rem; }
+    .result-val-label { font-size: .72rem; opacity: .6; text-transform: uppercase; letter-spacing: .08em; margin-top: .15rem; }
+    .result-divider { width: 1px; background: rgba(255,255,255,.2); align-self: stretch; }
+    .scenario-pill { display: inline-block; padding: .25rem .8rem; border-radius: 20px; font-size: .78rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+    .pill-low { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25); color: #fff; }
+    .pill-intermediate_low { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25); color: #fff; }
+    .pill-intermediate { background: var(--accent); color: #fff; }
+    .pill-intermediate_high { background: #e65100; color: #fff; }
+    .pill-high { background: #c62828; color: #fff; }
+    .pill-extreme { background: #4a148c; color: #fff; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.75rem; margin-bottom: 1.25rem; box-shadow: var(--shadow-sm); transition: box-shadow var(--transition); }
+    .card:hover { box-shadow: var(--shadow-md); }
+    .card h2 { font-size: 1.05rem; font-weight: 700; color: var(--primary); margin-bottom: 1rem; border-bottom: 2px solid var(--accent); padding-bottom: .45rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th { background: var(--primary); color: #fff; padding: .5rem .85rem; text-align: left; font-size: .82rem; font-weight: 600; }
+    td { padding: .5rem .85rem; border-bottom: 1px solid var(--border); }
+    tr:nth-child(even) td { background: #f8fafc; }
+    tr.selected-row td { background: #eef5ff; font-weight: 600; }
+    .note-box { background: #e8f4fd; border: 1px solid #bee3f8; border-left: 4px solid var(--primary); border-radius: var(--radius-sm); padding: .85rem 1rem; font-size: .84rem; color: #1a4a7a; line-height: 1.55; margin-bottom: 1.25rem; }
+    .action-row { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1rem; }
+    .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .6rem 1.3rem; border: none; border-radius: var(--radius-sm); font-size: .88rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: background var(--transition), box-shadow var(--transition), transform var(--transition); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .btn-secondary { background: #fff; color: var(--primary); border: 1.5px solid var(--primary); }
+    .btn-secondary:hover { background: #eef5ff; }
+    .btn-accent { background: var(--accent); color: #fff; }
+    .btn-accent:hover { background: var(--accent-dark); }
+    .site-footer { background: #1a2b3c; color: rgba(255,255,255,.65); text-align: center; padding: 2rem 1.5rem; font-size: .78rem; line-height: 1.8; }
+    .site-footer a { color: rgba(255,255,255,.55); text-decoration: none; }
+    .footer-brand { font-size: .9rem; font-weight: 600; color: rgba(255,255,255,.85); margin-bottom: .3rem; }
+    .footer-sep { margin: 0 .5rem; opacity: .4; }
+    @media (max-width: 768px) { .site-header { padding: 0 1rem; } .main-container { padding: 1.5rem 1rem 2.5rem; } .card { padding: 1.25rem; } .result-hero { padding: 1.5rem; } .result-val-num { font-size: 2.2rem; } .result-values { gap: 1.25rem; } }
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-brand">CVG <span>|</span> Wizard Suite</div>
+  <a href="/" class="back-link">&#8592; New Projection</a>
+</header>
+
+<main class="main-container">
+
+  <!-- Result Hero -->
+  <div class="result-hero">
+    <div class="result-hero-top">
+      <div>
+        <div class="result-station">&#128205; {{ station_name }}</div>
+        <div class="result-region">{{ station_region }}</div>
+        <div class="result-meta">Station ID: {{ station_id }} &bull; Planning Year: {{ year }} &bull; Scenario: {{ scenario | replace("_", "-") | title }}</div>
+      </div>
+      <span class="scenario-pill pill-{{ scenario }}">{{ scenario | replace("_", "-") | upper }}</span>
+    </div>
+    <div class="result-values">
+      <div class="result-val-block">
+        <div class="result-val-num">{{ slr_ft }}</div>
+        <div class="result-val-unit">feet (ft)</div>
+        <div class="result-val-label">Projected RSLR</div>
+      </div>
+      <div class="result-divider"></div>
+      <div class="result-val-block">
+        <div class="result-val-num">{{ slr_m }}</div>
+        <div class="result-val-unit">metres (m)</div>
+        <div class="result-val-label">Projected RSLR</div>
+      </div>
+    </div>
+  </div>
+  <!-- Regulatory Context Note -->
+  <div class="note-box">
+    &#8505;&#65039; <strong>Regulatory context:</strong> This projection is based on NOAA TR-083 (Sweet et al. 2022)
+    station-specific Relative Sea Level Rise (RSLR) tables for station {{ station_id }} ({{ station_name }}),
+    using the <strong>{{ scenario | replace("_", "-") | title }}</strong> scenario at
+    <strong>Year {{ year }}</strong>. Values are relative to the 2000 baseline
+    (MHHW epoch 1991&ndash;2009, NAVD88). For FEMA Resilience Action Plan compliance,
+    add this RSLR offset to existing design-storm water surface elevations.
+  </div>
+
+  <!-- All Scenarios Comparison Table -->
+  <div class="card">
+    <h2>&#128202; All Scenarios &mdash; Year {{ year }} Comparison</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Scenario (NOAA TR-083)</th>
+          <th>Global 2100 Mean</th>
+          <th>RSLR &mdash; {{ year }} (m)</th>
+          <th>RSLR &mdash; {{ year }} (ft)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set scenario_labels = {
+          "low": "Low (0.30 m / 1.0 ft)",
+          "intermediate_low": "Intermediate-Low (0.56 m / 1.8 ft)",
+          "intermediate": "Intermediate (1.00 m / 3.3 ft)",
+          "intermediate_high": "Intermediate-High (1.50 m / 4.9 ft)",
+          "high": "High (2.00 m / 6.6 ft)",
+          "extreme": "Extreme (3.21 m / 10.5 ft)"
+        } %}
+        {% set global_means = {
+          "low": "0.30 m",
+          "intermediate_low": "0.56 m",
+          "intermediate": "1.00 m",
+          "intermediate_high": "1.50 m",
+          "high": "2.00 m",
+          "extreme": "3.21 m"
+        } %}
+        {% for sc_key, sc_vals in all_scenarios.items() %}
+        <tr {% if sc_key == scenario %}class="selected-row"{% endif %}>
+          <td>{{ scenario_labels.get(sc_key, sc_key | replace("_", "-") | title) }}{% if sc_key == scenario %} &#9654;{% endif %}</td>
+          <td>{{ global_means.get(sc_key, "") }}</td>
+          <td>{{ sc_vals.m }}</td>
+          <td>{{ sc_vals.ft }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p style="font-size:.78rem;color:var(--text-muted);margin-top:.75rem;">&#9654; = selected scenario. Values in metres above 2000 baseline (NAVD88). Source: NOAA TR NOS CO-OPS 083.</p>
+  </div>
+  <!-- Parameter Summary Card -->
+  <div class="card">
+    <h2>&#128203; Projection Parameters</h2>
+    <table>
+      <tr><th>Parameter</th><th>Value</th></tr>
+      <tr><td>Station Name</td><td>{{ station_name }}</td></tr>
+      <tr><td>Station Region</td><td>{{ station_region }}</td></tr>
+      <tr><td>NOAA CO-OPS Station ID</td><td>{{ station_id }}</td></tr>
+      <tr><td>NOAA TR-083 Scenario</td><td>{{ scenario | replace("_", "-") | title }}</td></tr>
+      <tr><td>Planning Year</td><td>{{ year }}</td></tr>
+      <tr><td>Projected RSLR (metres)</td><td><strong>{{ slr_m }} m</strong></td></tr>
+      <tr><td>Projected RSLR (feet)</td><td><strong>{{ slr_ft }} ft</strong></td></tr>
+      <tr><td>Baseline Datum</td><td>NAVD88 (2000 baseline, MHHW 1991&ndash;2009)</td></tr>
+      <tr><td>Source</td><td>NOAA TR NOS CO-OPS 083 &mdash; Sweet et al. (2022)</td></tr>
+      <tr><td>Method</td><td>Station-specific RSLR table lookup with linear interpolation</td></tr>
+      <tr><td>CVG SLR Wizard Version</td><td>{{ version }}</td></tr>
+    </table>
+  </div>
+  <div class="action-row">
+    <a href="/" class="btn btn-primary">&#8592; Calculate Again</a>
+    <a href="/docs" target="_blank" class="btn btn-secondary">API Docs</a>
+  </div>
+</main>
+<footer class="site-footer">
+  <div class="footer-brand">Clearview Geographic, LLC</div>
+  <div>CVG SLR Wizard v{{ version }} &bull; NOAA TR-083 &mdash; Sweet et al. (2022) &bull; &copy; 2024 Clearview Geographic, LLC</div>
+  <div style="margin-top:.4rem;"><a href="https://oceanservice.noaa.gov/hazards/sealevelrise/sealevelrise-tech-report.html" target="_blank">NOAA TR NOS CO-OPS 083</a> &bull; <a href="/docs" target="_blank">API Documentation</a> &bull; Proprietary Software</div>
+</footer>
+</body>
+</html>
